@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Availability;
 use App\Models\AvailabilitySlot;
@@ -136,22 +137,34 @@ class AvailabilityApiController extends Controller
     }
 
     public function show($id): JsonResponse
-    {
-        $doctor = Doctor::find($id);
+{
+    $doctor = Doctor::find($id);
 
-        if (!$doctor) {
-            return response()->json([
-                'error' => 'Doctor not found'
-            ], 404);
-        }
-
-        $availabilities = $doctor->availabilities()->with('slots')->get();
-
+    if (!$doctor) {
         return response()->json([
-            'doctor' => $doctor,
-            'availabilities' => $availabilities
-        ]);
+            'error' => 'Doctor not found'
+        ], 404);
     }
+
+
+  
+
+    
+    // Authorization check
+    if (auth()->id() !== $doctor->id) {
+        return response()->json([
+            'error' => 'You are not authorized to view this doctor\'s availability'
+        ], 403);
+    }
+
+    $availabilities = $doctor->availabilities()->with('slots')->get();
+
+    return response()->json([
+        'doctor' => $doctor,
+        'availabilities' => $availabilities
+    ]);
+}
+
 
 
 }

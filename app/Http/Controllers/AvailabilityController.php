@@ -125,6 +125,10 @@ public function store(Request $request)
 }
     public function show(Doctor $doctor)
     {
+
+         if (auth()->id() !== $doctor->id) {
+            abort(403, 'Unauthorized action.');
+        }
         $availabilities = $doctor->availabilities()->with('slots')->get();
 
         return view('frontend.availability.show', compact('doctor', 'availabilities'));
@@ -133,6 +137,12 @@ public function store(Request $request)
 
     public function destroy(AvailabilitySlot $slot)
 {
+
+   if ($slot->availability->doctor_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        
     $availability = $slot->availability;
     $day = strtolower($slot->day_of_week);
     $date = $slot->slot_date;
