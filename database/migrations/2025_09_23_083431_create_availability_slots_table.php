@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('availability_slots', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('availability_id')->constrained()->onDelete('cascade');
+            $table->date('slot_date'); // exact calendar date
+            $table->string('day_of_week'); // e.g. 'Monday'
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->integer('max_appointments')->default(0);
+            $table->timestamps();
+            $table->softDeletes(); // ✅ enables soft delete
+
+            $table->index(['slot_date', 'start_time', 'end_time']);
+        });
+
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('availability_slots');
+    }
+};
